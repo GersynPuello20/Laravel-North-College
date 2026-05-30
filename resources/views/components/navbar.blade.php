@@ -38,22 +38,31 @@
             <div class="text-right">
 
                 <p class="font-semibold text-blue-950">
-                    Administrador
+                    {{ Auth::user()->name }}
                 </p>
 
                 <p class="text-sm text-gray-500">
-                    admin@northcollege.edu
+                    {{ Auth::user()->email }}
+                </p>
+
+                <p class="mt-1 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                    {{ Auth::user()->role?->name ?? 'Sin asignar' }}
                 </p>
 
             </div>
 
             <div class="w-12 h-12 rounded-full bg-blue-950 text-white flex items-center justify-center font-bold">
-
-                A
-
+                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
             </div>
 
         </div>
+
+        <form method="POST" action="{{ route('logout') }}" class="flex items-center">
+            @csrf
+            <button type="submit" class="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-all duration-200">
+                Cerrar sesión
+            </button>
+        </form>
 
     </div>
 

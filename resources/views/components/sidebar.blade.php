@@ -17,8 +17,8 @@
     <!-- MENU -->
     <nav class="flex-1 px-4 py-6 space-y-3">
 
-        <a href="#"
-           class="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-900 hover:bg-red-600 transition-all duration-300">
+        <a href="{{ route('dashboard') }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-900 hover:bg-red-600 transition-all duration-300 {{ request()->routeIs('dashboard') ? 'bg-blue-900' : '' }}">
 
             <span>📊</span>
 
@@ -28,8 +28,19 @@
 
         </a>
 
-        <a href="#"
-           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300">
+        <a href="{{ route('users.index') }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300 {{ request()->routeIs('users.*') ? 'bg-blue-900' : '' }}">
+
+            <span>👥</span>
+
+            <span>
+                Usuarios
+            </span>
+
+        </a>
+
+        <a href="{{ route('students.index') }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300 {{ request()->routeIs('students.*') ? 'bg-blue-900' : '' }}">
 
             <span>🎓</span>
 
@@ -39,8 +50,8 @@
 
         </a>
 
-        <a href="#"
-           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300">
+        <a href="{{ route('tutors.index') }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300 {{ request()->routeIs('tutors.*') ? 'bg-blue-900' : '' }}">
 
             <span>👨‍🏫</span>
 
@@ -50,8 +61,8 @@
 
         </a>
 
-        <a href="#"
-           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300">
+        <a href="{{ route('attendances.index') }}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300 {{ request()->routeIs('attendances.*') ? 'bg-blue-900' : '' }}">
 
             <span>📅</span>
 
@@ -90,20 +101,18 @@
 
         <div class="bg-blue-900 rounded-xl p-4 flex items-center gap-3">
 
-            <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center font-bold">
-
-                A
-
+            <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center font-bold text-white">
+                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
             </div>
 
             <div>
 
                 <p class="font-semibold">
-                    Admin
+                    {{ Auth::user()->name }}
                 </p>
 
                 <p class="text-sm text-gray-300">
-                    Administrador
+                    {{ Auth::user()->role?->name ?? 'Sin asignar' }}
                 </p>
 
             </div>
