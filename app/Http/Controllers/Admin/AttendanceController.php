@@ -36,7 +36,7 @@ class AttendanceController extends Controller
 
         Attendance::create($data);
 
-        return redirect()->route('attendances.index')->with('success', 'Registro de asistencia guardado correctamente.');
+        return redirect()->route('admin.attendances.index')->with('success', 'Registro de asistencia guardado correctamente.');
     }
 
     public function edit(Attendance $attendance)
@@ -59,13 +59,13 @@ class AttendanceController extends Controller
 
         $attendance->update($data);
 
-        return redirect()->route('attendances.index')->with('success', 'Registro de asistencia actualizado correctamente.');
+        return redirect()->route('admin.attendances.index')->with('success', 'Registro de asistencia actualizado correctamente.');
     }
 
     public function destroy(Attendance $attendance)
     {
         $attendance->delete();
 
-        return redirect()->route('attendances.index')->with('success', 'Registro de asistencia eliminado correctamente.');
+        return redirect()->route('admin.attendances.index')->with('success', 'Registro de asistencia eliminado correctamente.');
     }
 }

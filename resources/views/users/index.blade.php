@@ -44,18 +44,25 @@
                                 <td class="px-6 py-4 text-sm text-gray-700">
                                     @if($user->status === 'active')
                                         <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Activo</span>
+                                    @elseif($user->status === 'suspended')
+                                        <span class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">Suspendido</span>
                                     @else
                                         <span class="inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">Pendiente</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-right text-sm font-medium">
-                                    <form action="{{ route('users.update', $user) }}" method="POST" class="inline-flex items-center gap-3">
+                                    <form action="{{ route('admin.users.update', $user) }}" method="POST" class="inline-flex items-center gap-3">
                                         @csrf
                                         @method('PUT')
                                         <select name="role_id" class="rounded-xl border border-gray-200 bg-slate-50 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-blue-500">
                                             @foreach($roles as $role)
                                                 <option value="{{ $role->id }}" @selected($user->role_id === $role->id)>{{ $role->name }}</option>
                                             @endforeach
+                                        </select>
+                                        <select name="status" class="rounded-xl border border-gray-200 bg-slate-50 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-blue-500">
+                                            <option value="active" @selected($user->status === 'active')>Activo</option>
+                                            <option value="pending" @selected($user->status === 'pending')>Pendiente</option>
+                                            <option value="suspended" @selected($user->status === 'suspended')>Suspendido</option>
                                         </select>
                                         <button type="submit" class="rounded-xl bg-blue-950 px-4 py-2 text-white transition hover:bg-blue-700">Guardar</button>
                                     </form>

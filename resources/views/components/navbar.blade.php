@@ -5,7 +5,7 @@
     <div>
 
         <h2 class="text-2xl font-bold text-blue-950">
-            Dashboard Administrativo
+            Dashboard {{ Auth::user()->role?->name ?? 'del sistema' }}
         </h2>
 
         <p class="text-gray-500 text-sm">

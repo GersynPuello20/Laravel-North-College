@@ -21,12 +21,14 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'role_id' => 'required|exists:roles,id',
+            'status' => ['required', 'in:pending,active,suspended'],
         ]);
 
         $role = Role::findOrFail($data['role_id']);
         $user->role_id = $role->id;
+        $user->status = $data['status'];
         $user->save();
 
-        return redirect()->route('users.index')->with('success', 'Rol actualizado correctamente.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuario actualizado correctamente.');
     }
 }

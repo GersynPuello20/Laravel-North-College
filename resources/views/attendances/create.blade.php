@@ -16,7 +16,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('attendances.store') }}" method="POST" class="mt-8 space-y-6">
+            <form action="{{ route('admin.attendances.store') }}" method="POST" class="mt-8 space-y-6">
                 @csrf
 
                 <div>
@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-4">
-                    <a href="{{ route('attendances.index') }}" class="rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-slate-50">Cancelar</a>
+                    <a href="{{ route('admin.attendances.index') }}" class="rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-slate-50">Cancelar</a>
                     <button type="submit" class="rounded-xl bg-blue-950 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700">Guardar</button>
                 </div>
             </form>

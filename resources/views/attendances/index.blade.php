@@ -7,7 +7,7 @@
                 <h1 class="text-3xl font-bold text-blue-950">Asistencia</h1>
                 <p class="text-gray-500 mt-2">Historial de registros de entrada y salida para estudiantes.</p>
             </div>
-            <a href="{{ route('attendances.create') }}" class="inline-flex items-center justify-center rounded-xl bg-blue-950 px-5 py-3 text-white transition hover:bg-blue-700">
+            <a href="{{ route('admin.attendances.create') }}" class="inline-flex items-center justify-center rounded-xl bg-blue-950 px-5 py-3 text-white transition hover:bg-blue-700">
                 Registrar asistencia
             </a>
         </div>
@@ -40,8 +40,8 @@
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ optional($attendance->recorded_at)->format('d/m/Y H:i') ?? 'Sin registro' }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $attendance->note ?? '-' }}</td>
                                 <td class="px-6 py-4 text-right text-sm font-medium">
-                                    <a href="{{ route('attendances.edit', $attendance) }}" class="text-blue-600 hover:text-blue-800">Editar</a>
-                                    <form action="{{ route('attendances.destroy', $attendance) }}" method="POST" id="delete-attendance-form-{{ $attendance->id }}" class="inline-block ml-4">
+                                    <a href="{{ route('admin.attendances.edit', $attendance) }}" class="text-blue-600 hover:text-blue-800">Editar</a>
+                                    <form action="{{ route('admin.attendances.destroy', $attendance) }}" method="POST" id="delete-attendance-form-{{ $attendance->id }}" class="inline-block ml-4">
                                         @csrf
                                         @method('DELETE')
                                         <button type="button" data-form-id="delete-attendance-form-{{ $attendance->id }}" data-attendance-name="{{ optional($attendance->user)->name ?? 'registro de asistencia' }}" class="delete-attendance-button text-red-600 hover:text-red-800">Eliminar</button>

@@ -37,14 +37,15 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $pendingRoleId = Role::firstWhere('slug', 'pending')?->id;
+        $studentRoleId = Role::firstWhere('slug', 'student')?->id
+            ?? Role::firstWhere('slug', 'pending')?->id;
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => $pendingRoleId,
-            'status' => 'active',
+            'role_id' => $studentRoleId,
+            'status' => User::STATUS_ACTIVE,
         ]);
 
         event(new Registered($user));
