@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Attendance;
+use App\Models\AttendanceRecord;
 use App\Models\Role;
 use App\Models\Student;
 use App\Models\Course;
@@ -86,6 +87,16 @@ class User extends Authenticatable
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class, 'student_id');
+    }
+
+    public function teachingCourses(): HasMany
+    {
+        return $this->hasMany(Course::class, 'professor_id');
+    }
+
+    public function attendanceRecords(): HasMany
+    {
+        return $this->hasMany(AttendanceRecord::class, 'teacher_id');
     }
 
     public function hasRole(string $slug): bool

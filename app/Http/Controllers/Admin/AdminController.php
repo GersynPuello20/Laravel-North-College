@@ -53,13 +53,18 @@ class AdminController extends Controller
 
     public function teacherDashboard()
     {
+        $service = app(\App\Services\AttendancePeriodService::class);
+
         $courses = Course::where('professor_id', Auth::id())->get();
         $students = Enrollment::whereHas('course', fn ($query) => $query->where('professor_id', Auth::id()))
             ->distinct('student_id')
             ->count('student_id');
         $gradeCount = Grade::whereHas('subject.course', fn ($query) => $query->where('professor_id', Auth::id()))->count();
+        $attendanceStats = $service->getLast30DaysStats(Auth::id());
+        $current = $service->getCurrentQuincena();
+        $lastClosed = $service->getLastClosedQuincena();
 
-        return view('dashboard.teacher', compact('courses', 'students', 'gradeCount'));
+        return view('dashboard.teacher', compact('courses', 'students', 'gradeCount', 'attendanceStats', 'current', 'lastClosed'));
     }
 
     public function studentDashboard()

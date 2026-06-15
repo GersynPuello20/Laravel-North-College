@@ -95,6 +95,17 @@
 
             </a>
 
+            <a href="{{ route('admin.attendance.reports.index') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300 {{ request()->routeIs('admin.attendance.reports.*') ? 'bg-blue-900' : '' }}">
+
+                <span>📊</span>
+
+                <span>
+                    Reportes de asistencia
+                </span>
+
+            </a>
+
             <a href="{{ route('admin.grades.index') }}"
                class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300 {{ request()->routeIs('admin.grades.*') ? 'bg-blue-900' : '' }}">
 
@@ -113,6 +124,17 @@
 
                 <span>
                     Mis cursos
+                </span>
+
+            </a>
+
+            <a href="{{ route('teacher.attendance.index') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900 transition-all duration-300 {{ request()->routeIs('teacher.attendance.*') ? 'bg-blue-900' : '' }}">
+
+                <span>✅</span>
+
+                <span>
+                    Asistencia y Reportes
                 </span>
 
             </a>

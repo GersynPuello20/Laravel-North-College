@@ -1,20 +1,24 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\AttendanceController;
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\EnrollmentController;
 use App\Http\Controllers\Admin\GradeController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AttendanceController as TeacherAttendanceController;
+use App\Http\Controllers\AttendanceReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\ActiveUserMiddleware;
+use App\Http\Middleware\EnsureTeacherOwnsAttendanceRecord;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::aliasMiddleware('role', RoleMiddleware::class);
 Route::aliasMiddleware('active', ActiveUserMiddleware::class);
+Route::aliasMiddleware('attendance.owner', EnsureTeacherOwnsAttendanceRecord::class);
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,9 +27,8 @@ Route::get('/', function () {
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    Route::get('attendances', function () {
-        return redirect()->route('admin.attendances.index');
-    })->middleware('role:admin|superadmin');
+    // Redirect short attendances path to admin attendances index
+    Route::redirect('attendances', '/admin/attendances')->middleware('role:admin|superadmin');
 
     Route::middleware('role:admin|superadmin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'adminDashboard'])->name('dashboard');
@@ -35,7 +38,11 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::resource('schedules', ScheduleController::class);
         Route::resource('enrollments', EnrollmentController::class)->only(['index', 'destroy']);
         Route::resource('grades', GradeController::class)->except(['show']);
-        Route::resource('attendances', AttendanceController::class)->except(['show']);
+        Route::resource('attendances', AdminAttendanceController::class)->except(['show']);
+
+        Route::get('attendance-reports', [AttendanceReportController::class, 'adminIndex'])->name('attendance.reports.index');
+        Route::get('attendance-reports/pdf', [AttendanceReportController::class, 'adminPdf'])->name('attendance.reports.pdf');
+        Route::get('attendance-reports/excel', [AttendanceReportController::class, 'adminExcel'])->name('attendance.reports.excel');
     });
 
     Route::middleware('role:teacher')->prefix('teacher')->name('teacher.')->group(function () {
@@ -46,6 +53,17 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('grades', [GradeController::class, 'store'])->name('grades.store');
         Route::get('grades/{grade}/edit', [GradeController::class, 'edit'])->name('grades.edit');
         Route::put('grades/{grade}', [GradeController::class, 'update'])->name('grades.update');
+
+        Route::get('attendance', [TeacherAttendanceController::class, 'index'])->name('attendance.index');
+        Route::get('attendance/create', [TeacherAttendanceController::class, 'create'])->name('attendance.create');
+        Route::post('attendance', [TeacherAttendanceController::class, 'store'])->name('attendance.store');
+        Route::get('attendance/{attendance}/edit', [TeacherAttendanceController::class, 'edit'])->middleware('attendance.owner')->name('attendance.edit');
+        Route::put('attendance/{attendance}', [TeacherAttendanceController::class, 'update'])->middleware('attendance.owner')->name('attendance.update');
+        Route::delete('attendance/{attendance}', [TeacherAttendanceController::class, 'destroy'])->middleware('attendance.owner')->name('attendance.destroy');
+
+        Route::get('attendance/report', [AttendanceReportController::class, 'teacherReport'])->name('attendance.report');
+        Route::get('attendance/report/pdf', [AttendanceReportController::class, 'teacherPdf'])->name('attendance.report.pdf');
+        Route::get('attendance/report/excel', [AttendanceReportController::class, 'teacherExcel'])->name('attendance.report.excel');
     });
 
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {

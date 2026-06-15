@@ -26,6 +26,9 @@
             <!-- NAVBAR -->
             @include('components.navbar')
 
+            <!-- ALERTS -->
+            @include('components.alerts')
+
             <!-- CONTENT -->
             <main class="p-6">
 

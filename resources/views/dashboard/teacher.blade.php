@@ -23,6 +23,30 @@
     </div>
 </div>
 
+<div class="grid gap-6 xl:grid-cols-2 mb-8">
+    <div class="bg-white rounded-3xl p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-blue-950 mb-4">Resumen asistencia últimos 30 días</h2>
+        <p class="text-gray-600">Clases impartidas: <span class="font-semibold">{{ $attendanceStats['total_classes'] }}</span></p>
+        <p class="text-gray-600">Estudiantes atendidos: <span class="font-semibold">{{ $attendanceStats['total_assistants'] }}</span></p>
+        <p class="text-gray-600">Cursos impactados: <span class="font-semibold">{{ $attendanceStats['total_courses'] }}</span></p>
+        <p class="text-gray-600">Promedio asistencia: <span class="font-semibold">{{ $attendanceStats['average_attendance'] }}</span></p>
+    </div>
+    <div class="bg-white rounded-3xl p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-blue-950 mb-4">Quincenas</h2>
+        <div class="space-y-3">
+            <div class="rounded-2xl border border-slate-200 p-4">
+                <p class="text-gray-500">Quincena actual</p>
+                <p class="font-semibold mt-1">{{ $current['label'] }}</p>
+                <p class="text-sm text-amber-700 mt-1">{{ $current['status'] }}</p>
+            </div>
+            <div class="rounded-2xl border border-slate-200 p-4">
+                <p class="text-gray-500">Última quincena cerrada</p>
+                <p class="font-semibold mt-1">{{ $lastClosed['label'] }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="bg-white rounded-3xl p-6 shadow-sm">
     <h2 class="text-2xl font-bold text-blue-950 mb-4">Últimos cursos</h2>
     <div class="space-y-4">

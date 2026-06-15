@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\User;
+use App\Models\Subject;
+use App\Models\Schedule;
+use App\Models\AttendanceRecord;
 
 class Course extends Model
 {
@@ -26,6 +30,12 @@ class Course extends Model
         return $this->belongsTo(User::class, 'professor_id');
     }
 
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'enrollments', 'course_id', 'student_id')
+            ->withTimestamps();
+    }
+
     public function subjects(): HasMany
     {
         return $this->hasMany(Subject::class);
@@ -36,15 +46,9 @@ class Course extends Model
         return $this->hasMany(Schedule::class);
     }
 
-    public function enrollments(): HasMany
+    public function attendanceRecords(): HasMany
     {
-        return $this->hasMany(Enrollment::class);
-    }
-
-    public function students(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'enrollments', 'course_id', 'student_id')
-            ->withTimestamps();
+        return $this->hasMany(AttendanceRecord::class);
     }
 
     public function createdBy(): BelongsTo
