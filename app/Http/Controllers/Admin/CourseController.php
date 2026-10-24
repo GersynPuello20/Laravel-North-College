@@ -12,7 +12,10 @@ class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Course::with('professor')->latest()->paginate(15);
+        $courses = Course::with('professor')
+            ->withCount(['activeStudents', 'classSessions'])
+            ->orderBy('name')
+            ->paginate(15);
 
         return view('courses.index', compact('courses'));
     }
@@ -76,7 +79,7 @@ class CourseController extends Controller
 
     public function teacherIndex()
     {
-        $courses = Course::withCount('students')
+        $courses = Course::withCount(['activeStudents as students_count'])
             ->where('professor_id', Auth::id())
             ->latest()
             ->paginate(15);

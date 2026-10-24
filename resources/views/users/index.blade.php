@@ -1,85 +1,69 @@
 @extends('layouts.app')
 
+@section('title', 'Usuarios y roles')
+
 @section('content')
-    <div class="flex flex-col gap-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-blue-950">Usuarios registrados</h1>
-                <p class="text-gray-500 mt-2">Listado de usuarios del sistema y asignación de roles.</p>
-            </div>
-        </div>
+    <x-page-header title="Usuarios y roles" subtitle="Los cambios de rol y de estado quedan en la auditoría." />
 
-        @if(session('success'))
-            <div class="rounded-xl bg-green-50 border border-green-200 p-4 text-green-700">
-                {{ session('success') }}
+    <div class="card">
+        <form method="GET" class="flex flex-wrap items-end gap-3 border-b border-slate-100 p-4">
+            <div class="w-full sm:w-72">
+                <label for="q" class="form-label">Buscar</label>
+                <input id="q" name="q" value="{{ request('q') }}" placeholder="Nombre o correo" class="form-input">
             </div>
-        @endif
-
-        @if(session('info'))
-            <div class="rounded-xl bg-blue-50 border border-blue-200 p-4 text-blue-700">
-                {{ session('info') }}
+            <div class="w-full sm:w-48">
+                <label for="role" class="form-label">Rol</label>
+                <select id="role" name="role" class="form-input">
+                    <option value="">Todos</option>
+                    @foreach ($roles as $role)
+                        <option value="{{ $role->slug }}" @selected(request('role') === $role->slug)>{{ $role->name }}</option>
+                    @endforeach
+                </select>
             </div>
-        @endif
+            <button class="btn-secondary"><x-icon name="funnel" class="size-4" /> Filtrar</button>
+        </form>
 
-        <div class="overflow-hidden rounded-3xl bg-white shadow-lg">
+        @if ($users->isEmpty())
+            <x-empty-state icon="users" title="No hay usuarios con estos filtros" />
+        @else
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-slate-100">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">#</th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Nombre</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Email</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Rol actual</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Estado</th>
-                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
-                        @forelse($users as $user)
+                <table class="table">
+                    <thead><tr><th>Usuario</th><th>Rol y estado</th></tr></thead>
+                    <tbody>
+                        @foreach ($users as $user)
                             <tr>
-                                <td class="px-6 py-4 text-sm text-gray-700">{{ $user->id }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-700">{{ $user->name }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-700">{{ $user->email }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-700">{{ $user->role?->name ?? 'Sin asignar' }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-700">
-                                    @if($user->status === 'active')
-                                        <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Activo</span>
-                                    @elseif($user->status === 'suspended')
-                                        <span class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">Suspendido</span>
-                                    @else
-                                        <span class="inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">Pendiente</span>
-                                    @endif
+                                <td>
+                                    <p class="font-medium text-slate-900">{{ $user->name }}</p>
+                                    <p class="text-xs text-slate-500">{{ $user->email }}</p>
                                 </td>
-                                <td class="px-6 py-4 text-right text-sm font-medium">
-                                    <form action="{{ route('admin.users.update', $user) }}" method="POST" class="inline-flex items-center gap-3">
-                                        @csrf
-                                        @method('PUT')
-                                        <select name="role_id" class="rounded-xl border border-gray-200 bg-slate-50 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-blue-500">
-                                            @foreach($roles as $role)
+                                <td>
+                                    <form method="POST" action="{{ route('admin.users.update', $user) }}" class="flex flex-wrap items-center gap-2">
+                                        @csrf @method('PUT')
+                                        <label class="sr-only" for="role-{{ $user->id }}">Rol de {{ $user->name }}</label>
+                                        <select id="role-{{ $user->id }}" name="role_id" class="form-input w-48 py-1.5" @disabled($user->is(auth()->user()))>
+                                            @foreach ($roles as $role)
                                                 <option value="{{ $role->id }}" @selected($user->role_id === $role->id)>{{ $role->name }}</option>
                                             @endforeach
                                         </select>
-                                        <select name="status" class="rounded-xl border border-gray-200 bg-slate-50 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-blue-500">
-                                            <option value="active" @selected($user->status === 'active')>Activo</option>
-                                            <option value="pending" @selected($user->status === 'pending')>Pendiente</option>
-                                            <option value="suspended" @selected($user->status === 'suspended')>Suspendido</option>
+                                        <label class="sr-only" for="status-{{ $user->id }}">Estado de {{ $user->name }}</label>
+                                        <select id="status-{{ $user->id }}" name="status" class="form-input w-36 py-1.5" @disabled($user->is(auth()->user()))>
+                                            @foreach (\App\Models\User::STATUS_LABELS as $value => $label)
+                                                <option value="{{ $value }}" @selected($user->status === $value)>{{ $label }}</option>
+                                            @endforeach
                                         </select>
-                                        <button type="submit" class="rounded-xl bg-blue-950 px-4 py-2 text-white transition hover:bg-blue-700">Guardar</button>
+                                        @if ($user->is(auth()->user()))
+                                            <span class="text-xs text-slate-500">Tu propia cuenta</span>
+                                        @else
+                                            <button class="btn-secondary btn-sm">Guardar</button>
+                                        @endif
                                     </form>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-10 text-center text-gray-500">No hay usuarios registrados.</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
-
-            <div class="px-6 py-4 bg-slate-50">
-                {{ $users->links() }}
-            </div>
-        </div>
+            {{ $users->links() }}
+        @endif
     </div>
 @endsection

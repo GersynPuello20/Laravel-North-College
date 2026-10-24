@@ -1,66 +1,100 @@
 @extends('layouts.app')
 
+@section('title', 'Estudiantes')
+
 @section('content')
-    <div class="flex flex-col gap-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-blue-950">Estudiantes</h1>
-                <p class="text-gray-500 mt-2">Listado de usuarios con rol de estudiante. La asignación y edición de roles se gestiona desde Usuarios.</p>
-            </div>
-        </div>
+    <x-page-header title="Estudiantes" subtitle="Usuarios con rol estudiante. Las cuentas se crean por registro y el rol se asigna en Usuarios y roles." />
 
-        @if(session('success'))
-            <div class="rounded-xl bg-green-50 border border-green-200 p-4 text-green-700">
-                {{ session('success') }}
+    <div class="card">
+        <form method="GET" class="flex flex-wrap items-end gap-3 border-b border-slate-100 p-4">
+            <div class="w-full sm:w-64">
+                <label for="q" class="form-label">Buscar</label>
+                <div class="relative">
+                    <x-icon name="magnifying-glass" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                    <input id="q" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Nombre, correo, código o documento" class="form-input pl-9">
+                </div>
             </div>
-        @endif
-
-        @if(session('info'))
-            <div class="rounded-xl bg-blue-50 border border-blue-200 p-4 text-blue-700">
-                {{ session('info') }}
+            <div class="w-full sm:w-48">
+                <label for="course_id" class="form-label">Grupo</label>
+                <select id="course_id" name="course_id" class="form-input">
+                    <option value="">Todos</option>
+                    @foreach ($courses as $course)
+                        <option value="{{ $course->id }}" @selected(($filters['course_id'] ?? null) == $course->id)>{{ $course->name }}</option>
+                    @endforeach
+                </select>
             </div>
-        @endif
+            <div class="w-full sm:w-48">
+                <label for="biometric" class="form-label">Biometría</label>
+                <select id="biometric" name="biometric" class="form-input">
+                    <option value="">Todos</option>
+                    <option value="enrolled" @selected(($filters['biometric'] ?? null) === 'enrolled')>Enrolados</option>
+                    <option value="consent" @selected(($filters['biometric'] ?? null) === 'consent')>Autorizados sin enrolar</option>
+                    <option value="none" @selected(($filters['biometric'] ?? null) === 'none')>Sin autorización</option>
+                </select>
+            </div>
+            <div class="w-full sm:w-36">
+                <label for="status" class="form-label">Cuenta</label>
+                <select id="status" name="status" class="form-input">
+                    <option value="">Todas</option>
+                    @foreach (\App\Models\User::STATUS_LABELS as $value => $label)
+                        <option value="{{ $value }}" @selected(($filters['status'] ?? null) === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button class="btn-secondary"><x-icon name="funnel" class="size-4" /> Filtrar</button>
+                @if (array_filter($filters))
+                    <a href="{{ route('students.index') }}" class="btn-ghost">Limpiar</a>
+                @endif
+            </div>
+        </form>
 
-        <div class="overflow-hidden rounded-3xl bg-white shadow-lg">
+        @if ($students->isEmpty())
+            <x-empty-state icon="academic-cap" title="No hay estudiantes con estos filtros" />
+        @else
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-slate-100">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">#</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Nombre</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Email</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Rol</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Estado</th>
+                            <th>Estudiante</th>
+                            <th>Código</th>
+                            <th class="text-right">Matrículas</th>
+                            <th>Biometría</th>
+                            <th>Cuenta</th>
+                            <th><span class="sr-only">Acciones</span></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
-                        @forelse($students as $student)
+                    <tbody>
+                        @foreach ($students as $student)
                             <tr>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $student->id }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $student->name }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $student->email }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $student->role?->name ?? 'Estudiante' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                @if($student->status === 'active')
-                                    <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Activo</span>
-                                @else
-                                    <span class="inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">Pendiente</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-gray-500">No hay estudiantes registrados.</td>
+                                <td>
+                                    <a href="{{ route('students.show', $student) }}" class="font-medium text-slate-900 hover:text-navy-700">{{ $student->name }}</a>
+                                    <p class="text-xs text-slate-500">{{ $student->email }}</p>
+                                </td>
+                                <td class="tabular-nums text-slate-500">{{ $student->student?->enrollment_number ?? '—' }}</td>
+                                <td class="text-right tabular-nums">{{ $student->active_enrollments_count }}</td>
+                                <td>
+                                    @if ($student->faceTemplate)
+                                        <x-badge tone="green">Enrolado</x-badge>
+                                    @elseif ($student->activeBiometricConsent)
+                                        <x-badge tone="amber">Autorizado</x-badge>
+                                    @else
+                                        <x-badge>Manual</x-badge>
+                                    @endif
+                                </td>
+                                <td>
+                                    <x-badge :tone="$student->isActive() ? 'green' : 'slate'">{{ \App\Models\User::STATUS_LABELS[$student->status] ?? $student->status }}</x-badge>
+                                </td>
+                                <td class="whitespace-nowrap text-right">
+                                    <a href="{{ route('students.biometrics.show', $student) }}" class="btn-ghost btn-sm" title="Enrolamiento facial"><x-icon name="finger-print" class="size-4" /></a>
+                                    <a href="{{ route('students.show', $student) }}" class="btn-ghost btn-sm">Ver <x-icon name="chevron-right" class="size-4" /></a>
+                                </td>
                             </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
-
-            <div class="px-6 py-4 bg-slate-50">
-                {{ $students->links() }}
-            </div>
-        </div>
+            {{ $students->links() }}
+        @endif
     </div>
-
 @endsection

@@ -1,48 +1,35 @@
 @extends('layouts.app')
 
+@section('title', 'Notas')
+
 @section('content')
-<div class="space-y-6">
-    <div class="flex items-center justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-bold text-blue-950">Notas del docente</h1>
-            <p class="text-gray-500 mt-2">Registra y revisa las notas asignadas a tus estudiantes.</p>
-        </div>
-        <a href="{{ route('teacher.grades.create') }}" class="rounded-xl bg-blue-950 text-white px-6 py-3 text-sm font-semibold hover:bg-red-600 transition">Nueva nota</a>
-    </div>
+    <x-page-header title="Notas de mis grupos">
+        <x-slot:actions>
+            <a href="{{ route('teacher.grades.create') }}" class="btn-primary"><x-icon name="plus" class="size-4" /> Nueva nota</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <div class="overflow-hidden rounded-3xl bg-white shadow-lg">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-slate-100">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Estudiante</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Asignatura</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Nota</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Fecha</th>
-                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 bg-white">
-                    @forelse($grades as $grade)
-                        <tr>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $grade->student?->name }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $grade->subject?->name ?? 'Sin asignatura' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $grade->grade }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $grade->created_at->format('d/m/Y') }}</td>
-                            <td class="px-6 py-4 text-right text-sm font-medium">
-                                <a href="{{ route('teacher.grades.edit', $grade) }}" class="text-blue-950 hover:text-red-600">Editar</a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-10 text-center text-gray-500">No hay notas registradas.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <div class="px-6 py-4 bg-slate-50">{{ $grades->links() }}</div>
+    <div class="card">
+        @if ($grades->isEmpty())
+            <x-empty-state icon="document-text" title="Aún no has registrado notas" />
+        @else
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead><tr><th>Estudiante</th><th>Asignatura</th><th class="text-right">Nota</th><th>Fecha</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+                    <tbody>
+                        @foreach ($grades as $grade)
+                            <tr>
+                                <td class="font-medium text-slate-900">{{ $grade->student?->name }}</td>
+                                <td>{{ $grade->subject?->name ?? 'Sin asignatura' }} <span class="text-xs text-slate-500">· {{ $grade->subject?->course?->name }}</span></td>
+                                <td class="text-right font-semibold tabular-nums">{{ $grade->grade }}</td>
+                                <td class="tabular-nums text-slate-500">{{ $grade->created_at->format('d/m/Y') }}</td>
+                                <td class="text-right"><a href="{{ route('teacher.grades.edit', $grade) }}" class="btn-ghost btn-sm"><x-icon name="pencil-square" class="size-4" /> Editar</a></td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            {{ $grades->links() }}
+        @endif
     </div>
-</div>
 @endsection

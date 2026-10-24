@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @deprecated Módulo anterior (conteo de asistentes por clase). Lo reemplazan ClassSession y
+ * SessionAttendance (asistencia por estudiante). Se conserva para no perder
+ * los datos existentes en la tabla; ya no tiene rutas ni vistas.
+ */
 class AttendanceRecord extends Model
 {
     use HasFactory;
@@ -43,4 +48,4 @@ class AttendanceRecord extends Model
     {
         return $query->whereBetween('attendance_date', [$startDate, $endDate]);
     }
-};
+}

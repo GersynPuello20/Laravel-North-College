@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ScheduleController extends Controller
 {
     public function index()
     {
-        $schedules = Schedule::with('course')->latest()->paginate(20);
+        $schedules = Schedule::with('course')->orderBy('course_id')->orderBy('start_time')->paginate(20);
 
         return view('schedules.index', compact('schedules'));
     }
@@ -27,7 +28,7 @@ class ScheduleController extends Controller
     {
         $data = $request->validate([
             'course_id' => 'required|exists:courses,id',
-            'day_of_week' => 'required|string|max:20',
+            'day_of_week' => ['required', Rule::in(array_keys(Schedule::DAY_LABELS))],
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'classroom' => 'required|string|max:80',
@@ -49,7 +50,7 @@ class ScheduleController extends Controller
     {
         $data = $request->validate([
             'course_id' => 'required|exists:courses,id',
-            'day_of_week' => 'required|string|max:20',
+            'day_of_week' => ['required', Rule::in(array_keys(Schedule::DAY_LABELS))],
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'classroom' => 'required|string|max:80',
