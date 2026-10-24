@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; color: #1f2937; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .logo { font-size: 28px; font-weight: 800; color: #0f172a; }
+        .subtitle { color: #475569; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #d1d5db; padding: 10px; text-align: left; }
+        th { background: #f8fafc; }
+        .summary { margin-top: 30px; }
+        .footer { margin-top: 40px; font-size: 12px; color: #475569; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <div class="logo">North College</div>
+            <p class="subtitle">Reporte general de asistencia</p>
+        </div>
+        <div>
+            <p>Periodo: <strong>{{ $period['label'] }}</strong></p>
+            <p>Generado: <strong>{{ now()->format('d/m/Y') }}</strong></p>
+            @if($teacher)
+                <p>Profesor: <strong>{{ $teacher->name }}</strong></p>
+            @else
+                <p>Profesor: <strong>Todos los profesores</strong></p>
+            @endif
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Profesor</th>
+                <th>Curso</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Asistentes</th>
+                <th>Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($attendances as $attendance)
+                <tr>
+                    <td>{{ $attendance->teacher?->name ?? 'N/A' }}</td>
+                    <td>{{ $attendance->course->name }}</td>
+                    <td>{{ $attendance->attendance_date->format('d/m/Y') }}</td>
+                    <td>{{ $attendance->class_time }}</td>
+                    <td>{{ $attendance->students_present }}</td>
+                    <td>{{ $attendance->observations }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" style="text-align: center;">No se encontraron registros.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <div class="summary">
+        <h3>Resumen institucional</h3>
+        <p>Total de sesiones: <strong>{{ $summary['totalClasses'] }}</strong></p>
+        <p>Total de asistentes: <strong>{{ $summary['totalAssistants'] }}</strong></p>
+        <p>Promedio de asistencia: <strong>{{ $summary['averageAttendance'] }}</strong></p>
+    </div>
+
+    <div class="footer">
+        <p>Este documento sirve como soporte académico para la elaboración de la cuenta de cobro correspondiente al periodo seleccionado.</p>
+    </div>
+</body>
+</html>

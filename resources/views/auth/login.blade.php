@@ -16,7 +16,7 @@
         <div class="relative z-10 flex flex-col justify-center items-center text-center px-10 text-white">
 
             <div class="w-28 h-28 rounded-full border-4 border-white flex items-center justify-center mb-6 shadow-2xl bg-white/10 backdrop-blur">
-                <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"
+                <svg xmlns="http://www.w3.org/2000/svg"
                      class="h-14 w-14"
                      fill="none"
                      viewBox="0 0 24 24"
