@@ -1,24 +1,31 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="space-y-6">
-    <div>
-        <h1 class="text-3xl font-bold text-blue-950">Mis cursos</h1>
-        <p class="text-gray-500 mt-2">Estos son los cursos que tienes asignados como docente.</p>
-    </div>
+@section('title', 'Mis grupos')
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        @forelse($courses as $course)
-            <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-                <h2 class="text-2xl font-semibold text-blue-950">{{ $course->name }}</h2>
-                <p class="mt-3 text-gray-600">{{ $course->description }}</p>
-                <p class="mt-4 text-sm text-gray-500">Estudiantes matriculados: {{ $course->students_count }}</p>
-            </div>
-        @empty
-            <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-                <p class="text-gray-500">No tienes cursos asignados aún.</p>
-            </div>
-        @endforelse
+@section('content')
+    <x-page-header title="Mis grupos" subtitle="Grupos en los que eres tutor." />
+
+    <div class="card">
+        @if ($courses->isEmpty())
+            <x-empty-state icon="user-group" title="No tienes grupos asignados">
+                Un administrador debe asignarte como tutor de un grupo.
+            </x-empty-state>
+        @else
+            <ul class="divide-y divide-slate-100">
+                @foreach ($courses as $course)
+                    <li class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="min-w-0">
+                            <p class="font-medium text-slate-900">{{ $course->name }}</p>
+                            <p class="text-xs text-slate-500">{{ $course->students_count }} matriculados{{ $course->description ? ' · '.$course->description : '' }}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="{{ route('sessions.index', ['course_id' => $course->id]) }}" class="btn-secondary btn-sm"><x-icon name="calendar-days" class="size-4" /> Sesiones</a>
+                            <a href="{{ route('sessions.create', ['course_id' => $course->id]) }}" class="btn-primary btn-sm"><x-icon name="plus" class="size-4" /> Nueva sesión</a>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+            {{ $courses->links() }}
+        @endif
     </div>
-</div>
 @endsection

@@ -1,59 +1,91 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# North College
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema de gestión académica con control de asistencia por sesión de clase y
+registro opcional por reconocimiento facial.
 
-## About Laravel
+- **Asistencia por sesión**: grupos, sesiones (manuales o generadas desde los
+  horarios), apertura y cierre, estados *Presente / Tarde / Ausente / Ausencia
+  justificada*, método de registro y correcciones con motivo y responsable.
+- **Reconocimiento facial opcional**: autorización explícita (Ley 1581 de
+  2012), enrolamiento con prueba de presencia, identificación solo entre los
+  estudiantes del grupo, y registro manual siempre disponible.
+- **Informes**: filtros por fecha, grupo, tutor, estudiante, estado y método;
+  exportación a Excel, CSV y PDF.
+- **Roles**: superadministrador, administrador, coordinación, tutor (docente),
+  estudiante y pendiente.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Stack: Laravel 12 · PHP 8.2 · Blade + Tailwind 3 + Alpine · Vite · SQLite/MySQL ·
+servicio local Python (OpenCV YuNet + SFace).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Instalación
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+# Token compartido con el motor biométrico:
+php -r "echo bin2hex(random_bytes(32)).PHP_EOL;"   # pegarlo en FACE_SERVICE_TOKEN
+php artisan migrate --seed
+npm run build
+```
 
-## Learning Laravel
+Usuario inicial: `admin@northcollege.test` / `Password123!` (cámbialo).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Datos de demostración opcionales (un grupo, un tutor y tres estudiantes):
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+php artisan db:seed --class=DemoSeeder
+```
 
-## Laravel Sponsors
+## Ejecutar
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+php artisan serve                 # http://127.0.0.1:8000
+facial-service\start.bat          # motor biométrico en 127.0.0.1:8765 (Windows)
+php artisan schedule:work         # tareas programadas (purga biométrica diaria)
+```
 
-### Premium Partners
+En Linux/macOS el motor se inicia con:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+cd facial-service
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python download_models.py
+FACE_SERVICE_TOKEN=... .venv/bin/python server.py
+```
 
-## Contributing
+## Pruebas
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan test
+# Motor biométrico (las pruebas con rostros necesitan imágenes de muestra de OpenCV):
+facial-service\.venv\Scripts\python -m unittest discover -s facial-service\tests
+```
 
-## Code of Conduct
+## Variables de entorno nuevas
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Variable | Por defecto | Uso |
+|---|---|---|
+| `APP_TIMEZONE` | `America/Bogota` | Hora de las sesiones y de los registros |
+| `FACE_SERVICE_URL` | `http://127.0.0.1:8765` | Dirección del motor |
+| `FACE_SERVICE_TOKEN` | — | Secreto compartido con el motor (obligatorio) |
+| `FACE_SERVICE_TIMEOUT` | `15` | Segundos de espera |
+| `FACE_MATCH_THRESHOLD` | `0.363` | Similitud mínima para registrar |
+| `FACE_UNKNOWN_THRESHOLD` | `0.25` | Por debajo, "no reconocido" |
+| `FACE_AMBIGUITY_MARGIN` | `0.05` | Ventaja mínima sobre el segundo candidato |
+| `FACE_LIVENESS_REQUIRED` | `true` | Exigir el reto de giro de cabeza |
+| `FACE_CHALLENGE_TTL` | `90` | Vigencia del reto en segundos |
+| `BIOMETRIC_CONSENT_VERSION` | `2026-10-v1` | Versión del texto de autorización |
+| `BIOMETRIC_CONTROLLER_NAME` | `North College` | Responsable del tratamiento |
+| `BIOMETRIC_CONTACT_EMAIL` | — | Canal para consultas y revocatorias |
+| `BIOMETRIC_RETENTION_DAYS` | `30` | Retención tras inactividad |
 
-## Security Vulnerabilities
+El motor acepta además `FACE_MIN_DETECTION_SCORE`, `FACE_MIN_FACE_WIDTH`,
+`FACE_MIN_BRIGHTNESS`, `FACE_MAX_BRIGHTNESS`, `FACE_MIN_SHARPNESS`,
+`FACE_FRONTAL_MAX_YAW`, `FACE_TURNED_MIN_YAW` y `FACE_CONSISTENCY_THRESHOLD`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Documentación
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- [Reconocimiento facial: arquitectura, umbrales, límites y prueba con cámara](docs/RECONOCIMIENTO-FACIAL.md)
+- [Protección de datos (Ley 1581 de 2012) y puntos a validar jurídicamente](docs/PROTECCION-DATOS.md)

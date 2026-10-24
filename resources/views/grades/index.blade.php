@@ -1,45 +1,37 @@
 @extends('layouts.app')
 
+@section('title', 'Notas')
+
 @section('content')
-<div class="space-y-6">
-    <div>
-        <h1 class="text-3xl font-bold text-blue-950">Notas del sistema</h1>
-        <p class="text-gray-500 mt-2">Gestiona todas las calificaciones registradas para los estudiantes.</p>
-    </div>
+    <x-page-header title="Notas" subtitle="Las registran los tutores desde sus grupos." />
 
-    <div class="overflow-hidden rounded-3xl bg-white shadow-lg">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-slate-100">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Estudiante</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Asignatura</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Nota</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Registrado por</th>
-                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 bg-white">
-                    @forelse($grades as $grade)
-                        <tr>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $grade->student?->name }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $grade->subject?->name ?? 'Sin asignatura' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $grade->grade }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $grade->createdBy?->name ?? 'Sistema' }}</td>
-                            <td class="px-6 py-4 text-right text-sm font-medium">
-                                <a href="{{ route('admin.grades.edit', $grade) }}" class="text-blue-950 hover:text-red-600">Editar</a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-10 text-center text-gray-500">No hay notas registradas.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <div class="px-6 py-4 bg-slate-50">{{ $grades->links() }}</div>
+    <div class="card">
+        @if ($grades->isEmpty())
+            <x-empty-state icon="document-text" title="Aún no hay notas registradas" />
+        @else
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead><tr><th>Estudiante</th><th>Asignatura</th><th>Grupo</th><th class="text-right">Nota</th><th>Registrada por</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+                    <tbody>
+                        @foreach ($grades as $grade)
+                            <tr>
+                                <td class="font-medium text-slate-900">{{ $grade->student?->name }}</td>
+                                <td>{{ $grade->subject?->name ?? 'Sin asignatura' }}</td>
+                                <td class="text-slate-500">{{ $grade->subject?->course?->name }}</td>
+                                <td class="text-right font-semibold tabular-nums">{{ $grade->grade }}</td>
+                                <td class="text-slate-500">{{ $grade->createdBy?->name ?? 'Sistema' }}</td>
+                                <td class="text-right">
+                                    <form method="POST" action="{{ route('admin.grades.destroy', $grade) }}" onsubmit="return confirm('¿Eliminar esta nota?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn-ghost btn-sm" title="Eliminar"><x-icon name="trash" class="size-4" /></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            {{ $grades->links() }}
+        @endif
     </div>
-</div>
 @endsection

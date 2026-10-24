@@ -46,15 +46,15 @@
 
             <div class="flex gap-10 mt-16">
                 <div class="text-center">
-                    <div class="w-14 h-14 rounded-full border border-white flex items-center justify-center mx-auto mb-3">👤</div>
+                    <div class="w-14 h-14 rounded-full border border-white flex items-center justify-center mx-auto mb-3"><x-icon name="face-smile" class="size-6" /></div>
                     <p class="text-sm">Reconocimiento Facial</p>
                 </div>
                 <div class="text-center">
-                    <div class="w-14 h-14 rounded-full border border-white flex items-center justify-center mx-auto mb-3">📊</div>
+                    <div class="w-14 h-14 rounded-full border border-white flex items-center justify-center mx-auto mb-3"><x-icon name="clipboard-document-check" class="size-6" /></div>
                     <p class="text-sm">Control de Asistencia</p>
                 </div>
                 <div class="text-center">
-                    <div class="w-14 h-14 rounded-full border border-white flex items-center justify-center mx-auto mb-3">🎓</div>
+                    <div class="w-14 h-14 rounded-full border border-white flex items-center justify-center mx-auto mb-3"><x-icon name="academic-cap" class="size-6" /></div>
                     <p class="text-sm">Gestión Académica</p>
                 </div>
             </div>

@@ -1,24 +1,43 @@
 @extends('layouts.app')
 
+@section('title', 'Editar estudiante')
+
 @section('content')
-    <div class="max-w-4xl mx-auto space-y-6">
-        <div>
-            <h1 class="text-3xl font-bold text-blue-950">Editar estudiante</h1>
-            <p class="text-gray-500 mt-2">Actualiza los datos del estudiante.</p>
+    <x-page-header :title="'Perfil de '.$student->name" subtitle="Nombre y correo se cambian desde la cuenta del usuario." :back="route('students.show', $student)" />
+
+    <form method="POST" action="{{ route('students.update', $student) }}" class="card max-w-3xl">
+        @csrf @method('PUT')
+        <div class="card-body grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <x-field label="Código estudiantil" name="enrollment_number">
+                <input id="enrollment_number" name="enrollment_number" value="{{ old('enrollment_number', $profile->enrollment_number) }}" maxlength="30" class="form-input">
+            </x-field>
+            <x-field label="Documento de identidad" name="document_number">
+                <input id="document_number" name="document_number" value="{{ old('document_number', $profile->document_number) }}" maxlength="30" class="form-input">
+            </x-field>
+            <x-field label="Fecha de nacimiento" name="birth_date" hint="Necesaria para saber si la autorización biométrica la da el estudiante o su representante legal.">
+                <input id="birth_date" type="date" name="birth_date" value="{{ old('birth_date', $profile->birth_date?->toDateString()) }}" max="{{ today()->subDay()->toDateString() }}" class="form-input">
+            </x-field>
+
+            <div class="sm:col-span-2 border-t border-slate-100 pt-5">
+                <h2 class="text-sm font-semibold text-slate-900">Representante legal / acudiente</h2>
+                <p class="text-xs text-slate-500">Obligatorio en la práctica para estudiantes menores de edad.</p>
+            </div>
+            <x-field label="Nombre" name="guardian_name">
+                <input id="guardian_name" name="guardian_name" value="{{ old('guardian_name', $profile->guardian_name) }}" maxlength="255" class="form-input">
+            </x-field>
+            <x-field label="Documento" name="guardian_document">
+                <input id="guardian_document" name="guardian_document" value="{{ old('guardian_document', $profile->guardian_document) }}" maxlength="30" class="form-input">
+            </x-field>
+            <x-field label="Correo" name="guardian_email">
+                <input id="guardian_email" type="email" name="guardian_email" value="{{ old('guardian_email', $profile->guardian_email) }}" maxlength="255" class="form-input">
+            </x-field>
+            <x-field label="Teléfono" name="guardian_phone">
+                <input id="guardian_phone" name="guardian_phone" value="{{ old('guardian_phone', $profile->guardian_phone) }}" maxlength="30" class="form-input">
+            </x-field>
         </div>
-
-        <div class="rounded-3xl bg-white p-8 shadow-lg">
-            <form action="{{ route('students.update', $student) }}" method="POST" class="space-y-6">
-                @csrf
-                @method('PUT')
-
-                @include('students._form')
-
-                <div class="flex items-center gap-3">
-                    <button type="submit" class="rounded-xl bg-blue-950 px-6 py-3 text-white transition hover:bg-blue-700">Actualizar estudiante</button>
-                    <a href="{{ route('students.index') }}" class="text-gray-600 hover:text-gray-900">Cancelar</a>
-                </div>
-            </form>
+        <div class="flex justify-end gap-2 border-t border-slate-100 px-5 py-4">
+            <a href="{{ route('students.show', $student) }}" class="btn-secondary">Cancelar</a>
+            <button class="btn-primary">Guardar</button>
         </div>
-    </div>
+    </form>
 @endsection

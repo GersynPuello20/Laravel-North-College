@@ -4,17 +4,12 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Attendance;
-use App\Models\AttendanceRecord;
-use App\Models\Role;
-use App\Models\Student;
-use App\Models\Course;
-use App\Models\Enrollment;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -24,8 +19,23 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_SUSPENDED = 'suspended';
+
+    public const STATUS_LABELS = [
+        self::STATUS_PENDING => 'Pendiente',
+        self::STATUS_ACTIVE => 'Activo',
+        self::STATUS_SUSPENDED => 'Suspendido',
+    ];
+
+    /** Roles con acceso a la gestión de asistencia y biometría de todos los grupos. */
+    public const STAFF_ROLES = ['superadmin', 'admin', 'coordinator'];
+
+    protected $attributes = [
+        'status' => self::STATUS_ACTIVE,
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -73,9 +83,26 @@ class User extends Authenticatable
         return $this->hasOne(Student::class);
     }
 
-    public function attendances(): HasMany
+    public function sessionAttendances(): HasMany
     {
-        return $this->hasMany(Attendance::class);
+        return $this->hasMany(SessionAttendance::class, 'student_id');
+    }
+
+    public function biometricConsents(): HasMany
+    {
+        return $this->hasMany(BiometricConsent::class, 'student_id')->latest('granted_at');
+    }
+
+    public function activeBiometricConsent(): HasOne
+    {
+        return $this->hasOne(BiometricConsent::class, 'student_id')
+            ->where('status', BiometricConsent::STATUS_GRANTED)
+            ->latestOfMany('granted_at');
+    }
+
+    public function faceTemplate(): HasOne
+    {
+        return $this->hasOne(FaceTemplate::class, 'student_id');
     }
 
     public function courses(): BelongsToMany
@@ -94,14 +121,34 @@ class User extends Authenticatable
         return $this->hasMany(Course::class, 'professor_id');
     }
 
-    public function attendanceRecords(): HasMany
-    {
-        return $this->hasMany(AttendanceRecord::class, 'teacher_id');
-    }
-
     public function hasRole(string $slug): bool
     {
         return $this->role?->slug === $slug;
+    }
+
+    /** Administración académica: superadmin, admin y coordinador. */
+    public function isStaff(): bool
+    {
+        return in_array($this->role?->slug, self::STAFF_ROLES, true);
+    }
+
+    public function isCoordinator(): bool
+    {
+        return $this->role?->slug === 'coordinator';
+    }
+
+    public function initials(): string
+    {
+        return collect(explode(' ', trim($this->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn ($part) => mb_strtoupper(mb_substr($part, 0, 1)))
+            ->implode('');
+    }
+
+    public function scopeStudents(Builder $query): Builder
+    {
+        return $query->whereRole('student');
     }
 
     public function isSuperAdmin(): bool

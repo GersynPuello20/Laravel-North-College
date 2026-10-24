@@ -1,52 +1,25 @@
 @extends('layouts.app')
 
+@section('title', 'Editar grupo')
+
 @section('content')
-<div class="max-w-3xl mx-auto">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-blue-950">Editar curso</h1>
-        <p class="text-gray-500 mt-2">Actualiza la información del curso y su profesor asignado.</p>
-    </div>
+    <x-page-header :title="'Editar · '.$course->name" :back="route('admin.courses.index')" />
 
-    <div class="rounded-3xl bg-white p-8 shadow-lg">
-        <form action="{{ route('admin.courses.update', $course) }}" method="POST" class="space-y-6">
-            @csrf
-            @method('PUT')
+    <form method="POST" action="{{ route('admin.courses.update', $course) }}" class="card max-w-2xl">
+        @csrf @method('PUT')
+        @include('courses.partials.form')
+        <div class="flex justify-end gap-2 border-t border-slate-100 px-5 py-4">
+            <a href="{{ route('admin.courses.index') }}" class="btn-secondary">Cancelar</a>
+            <button class="btn-primary">Guardar cambios</button>
+        </div>
+    </form>
 
-            <div>
-                <label class="block text-sm font-semibold text-gray-700">Nombre del curso</label>
-                <input type="text" name="name" value="{{ old('name', $course->name) }}" class="mt-2 w-full rounded-xl border border-gray-200 p-4 focus:border-blue-900 focus:ring-blue-900" required>
-                <x-input-error :messages="$errors->get('name')" class="mt-2" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700">Profesor</label>
-                <select name="professor_id" class="mt-2 w-full rounded-xl border border-gray-200 p-4 focus:border-blue-900 focus:ring-blue-900">
-                    <option value="">Sin asignar</option>
-                    @foreach($teachers as $teacher)
-                        <option value="{{ $teacher->id }}" @selected(old('professor_id', $course->professor_id) == $teacher->id)>{{ $teacher->name }}</option>
-                    @endforeach
-                </select>
-                <x-input-error :messages="$errors->get('professor_id')" class="mt-2" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700">Descripción</label>
-                <textarea name="description" rows="4" class="mt-2 w-full rounded-xl border border-gray-200 p-4 focus:border-blue-900 focus:ring-blue-900">{{ old('description', $course->description) }}</textarea>
-                <x-input-error :messages="$errors->get('description')" class="mt-2" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700">Estado</label>
-                <select name="status" class="mt-2 w-full rounded-xl border border-gray-200 p-4 focus:border-blue-900 focus:ring-blue-900">
-                    <option value="active" @selected(old('status', $course->status) === 'active')>Activo</option>
-                    <option value="pending" @selected(old('status', $course->status) === 'pending')>Pendiente</option>
-                    <option value="suspended" @selected(old('status', $course->status) === 'suspended')>Suspendido</option>
-                </select>
-                <x-input-error :messages="$errors->get('status')" class="mt-2" />
-            </div>
-
-            <button type="submit" class="rounded-xl bg-blue-950 px-6 py-3 text-white font-semibold hover:bg-red-600 transition">Actualizar curso</button>
-        </form>
-    </div>
-</div>
+    <form method="POST" action="{{ route('admin.courses.destroy', $course) }}" class="mt-6 max-w-2xl"
+          onsubmit="return confirm('Se eliminarán el grupo, sus horarios, matrículas, sesiones y registros de asistencia. ¿Continuar?')">
+        @csrf @method('DELETE')
+        <div class="card flex flex-wrap items-center justify-between gap-3 border-accent-200 px-5 py-4">
+            <p class="text-sm text-slate-600">Eliminar el grupo borra también su historial de asistencia.</p>
+            <button class="btn-danger"><x-icon name="trash" class="size-4" /> Eliminar grupo</button>
+        </div>
+    </form>
 @endsection
