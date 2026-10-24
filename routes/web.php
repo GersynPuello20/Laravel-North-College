@@ -24,7 +24,7 @@ Route::aliasMiddleware('role', RoleMiddleware::class);
 Route::aliasMiddleware('active', ActiveUserMiddleware::class);
 
 Route::get('/', function () {
-    return auth()->check() ? redirect()->route('dashboard') : view('welcome');
+    return redirect()->route(auth()->check() ? 'dashboard' : 'login');
 });
 
 Route::middleware(['auth', 'active'])->group(function () {
